@@ -1,6 +1,9 @@
 use indicatif::{ProgressBar, ProgressIterator};
 
-use crate::geometry::{ray::Ray, vec3::Vec3};
+use crate::geometry::{
+    ray::Ray,
+    vec3::{Color, Point3, Vec3},
+};
 
 pub type ImageBuffer = image::ImageBuffer<image::Rgb<u8>, Vec<u8>>;
 
@@ -73,8 +76,20 @@ impl Into<image::Rgb<u8>> for Vec3 {
 }
 
 fn ray_color(ray: Ray) -> image::Rgb<u8> {
+    if hit_sphere(Point3::new(0., 0., -1.), 0.5, &ray) {
+        return Color::new(1.0, 0.0, 0.0).into();
+    }
     let unit_direction = ray.direction.unit_vector();
     let t = 0.5 * (unit_direction.y + 1.);
-    let color = (1. - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0);
+    let color = (1. - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0);
     color.into()
+}
+
+fn hit_sphere(center: Point3, radius: f64, ray: &Ray) -> bool {
+    let origin_to_center = ray.origin - center;
+    let a = ray.direction.dot(ray.direction);
+    let b = 2.0 * origin_to_center.dot(ray.direction);
+    let c = origin_to_center.dot(origin_to_center) - radius * radius;
+    let discriminant = b * b - 4.0 * a * c;
+    discriminant > 0.
 }

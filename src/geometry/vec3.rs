@@ -9,6 +9,7 @@ pub struct Vec3 {
 
 // TODO Maybe use the newType pattern with the Deref trait rather than a type alias
 pub type Point3 = Vec3;
+pub type Color = Vec3;
 
 impl Vec3 {
     pub fn new(x: f64, y: f64, z: f64) -> Self {
