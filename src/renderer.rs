@@ -36,11 +36,11 @@ impl Renderer {
         let viewport_width = viewport_heigth * aspect_ratio;
         let focal_length = 1.;
 
-        let origin = Vec3::default();
-        let horizontal = Vec3::new(viewport_width, 0., 0.);
-        let vertical = Vec3::new(0., viewport_heigth, 0.);
+        let origin = Vec3::zeros();
+        let horizontal = viewport_width * Vec3::i();
+        let vertical = viewport_heigth * Vec3::j();
         let lower_left_corner =
-            origin - horizontal / 2. - vertical / 2. - Vec3::new(0., 0., focal_length);
+            origin - horizontal / 2. - vertical / 2. - (focal_length * Vec3::k());
 
         let mut imgbuf = ImageBuffer::new(self.image_width, self.image_heigth);
 
@@ -54,7 +54,7 @@ impl Renderer {
 
             let ray = Ray::new(
                 origin,
-                lower_left_corner + u * horizontal + v * vertical - origin,
+                (lower_left_corner + u * horizontal + v * vertical - origin).unit_vector(),
             );
 
             *pixel = ray_color(ray);
@@ -76,15 +76,15 @@ impl Into<image::Rgb<u8>> for Vec3 {
 }
 
 fn ray_color(ray: Ray) -> image::Rgb<u8> {
-    let t = hit_sphere(Point3::new(0., 0., -1.), 0.5, &ray);
+    let t = hit_sphere(-Point3::k(), 0.5, &ray);
     if t > 0. {
-        let n = (ray.at(t) - Vec3::new(0., 0., -1.)).unit_vector();
-        let color = 0.5 * (n + Color::new(1., 1., 1.));
+        let n = (ray.at(t) + Vec3::k()).unit_vector();
+        let color = 0.5 * (n + Color::ones());
         return color.into();
     }
     let unit_direction = ray.direction.unit_vector();
     let t = 0.5 * (unit_direction.y + 1.);
-    let color = (1. - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0);
+    let color = (1. - t) * Color::ones() + t * Color::new(0.5, 0.7, 1.0);
     color.into()
 }
 

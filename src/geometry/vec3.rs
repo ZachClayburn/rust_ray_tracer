@@ -16,6 +16,26 @@ impl Vec3 {
         Self { x, y, z }
     }
 
+    pub fn i() -> Self {
+        Self::new(1., 0., 0.)
+    }
+
+    pub fn j() -> Self {
+        Self::new(0., 1., 0.)
+    }
+
+    pub fn k() -> Self {
+        Self::new(0., 0., 1.)
+    }
+
+    pub fn zeros() -> Self {
+        Self::new(0., 0., 0.)
+    }
+
+    pub fn ones() -> Self {
+        Self::new(1., 1., 1.)
+    }
+
     pub fn length_squared(self) -> f64 {
         self.x * self.x + self.y * self.y + self.z * self.z
     }
@@ -173,6 +193,14 @@ mod test {
         assert_eq!(v3.z, 3.);
     }
 
+    #[test]
+    fn can_can_create_key_vectors() {
+        assert_eq!(Vec3::i(), Vec3::new(1., 0., 0.));
+        assert_eq!(Vec3::j(), Vec3::new(0., 1., 0.));
+        assert_eq!(Vec3::k(), Vec3::new(0., 0., 1.));
+        assert_eq!(Vec3::zeros(), Vec3::default());
+        assert_eq!(Vec3::ones(), Vec3::new(1., 1., 1.));
+    }
     #[test]
     fn can_add_vec3() {
         let lhs = Vec3::new(1., 2., 3.);
