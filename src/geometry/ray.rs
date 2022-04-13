@@ -1,13 +1,14 @@
 use super::vec3::{Point3, Vec3};
 
 #[derive(Debug, Default, Clone, Copy)]
-struct Ray {
-    origin: Point3,
-    direction: Vec3,
+pub struct Ray {
+    pub origin: Point3,
+    pub direction: Vec3,
 }
 
 impl Ray {
     pub fn new(origin: Point3, direction: Vec3) -> Self {
+        // debug_assert_eq!(direction.length_squared(), 1.0, "Ray must have unit direction!");
         Self { origin, direction }
     }
 
