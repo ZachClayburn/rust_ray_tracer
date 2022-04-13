@@ -76,8 +76,11 @@ impl Into<image::Rgb<u8>> for Vec3 {
 }
 
 fn ray_color(ray: Ray) -> image::Rgb<u8> {
-    if hit_sphere(Point3::new(0., 0., -1.), 0.5, &ray) {
-        return Color::new(1.0, 0.0, 0.0).into();
+    let t = hit_sphere(Point3::new(0., 0., -1.), 0.5, &ray);
+    if t > 0. {
+        let n = (ray.at(t) - Vec3::new(0., 0., -1.)).unit_vector();
+        let color = 0.5 * (n + Color::new(1., 1., 1.));
+        return color.into();
     }
     let unit_direction = ray.direction.unit_vector();
     let t = 0.5 * (unit_direction.y + 1.);
@@ -85,11 +88,15 @@ fn ray_color(ray: Ray) -> image::Rgb<u8> {
     color.into()
 }
 
-fn hit_sphere(center: Point3, radius: f64, ray: &Ray) -> bool {
+fn hit_sphere(center: Point3, radius: f64, ray: &Ray) -> f64 {
     let origin_to_center = ray.origin - center;
     let a = ray.direction.dot(ray.direction);
     let b = 2.0 * origin_to_center.dot(ray.direction);
     let c = origin_to_center.dot(origin_to_center) - radius * radius;
     let discriminant = b * b - 4.0 * a * c;
-    discriminant > 0.
+    if discriminant < 0. {
+        -1.0
+    } else {
+        (-b - discriminant.sqrt()) / (2.0 * a)
+    }
 }
