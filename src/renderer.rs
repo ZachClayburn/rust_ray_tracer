@@ -90,13 +90,13 @@ fn ray_color(ray: Ray) -> image::Rgb<u8> {
 
 fn hit_sphere(center: Point3, radius: f64, ray: &Ray) -> f64 {
     let origin_to_center = ray.origin - center;
-    let a = ray.direction.dot(ray.direction);
-    let b = 2.0 * origin_to_center.dot(ray.direction);
-    let c = origin_to_center.dot(origin_to_center) - radius * radius;
-    let discriminant = b * b - 4.0 * a * c;
+    let a = ray.direction.length_squared();
+    let b = origin_to_center.dot(ray.direction);
+    let c = origin_to_center.length_squared() - radius * radius;
+    let discriminant = b * b - a * c;
     if discriminant < 0. {
         -1.0
     } else {
-        (-b - discriminant.sqrt()) / (2.0 * a)
+        (-b - discriminant.sqrt()) / a
     }
 }
