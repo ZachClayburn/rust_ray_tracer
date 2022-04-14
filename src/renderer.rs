@@ -4,6 +4,7 @@ use self::camera::Camera;
 use crate::geometry::{Color, HitableList, Hittable, Ray, Sphere, Vec3};
 use indicatif::{ProgressBar, ProgressIterator, ProgressStyle};
 use rand::prelude::*;
+use rand::seq::SliceRandom;
 
 pub type ImageBuffer = image::ImageBuffer<image::Rgb<u8>, Vec<u8>>;
 
@@ -53,6 +54,9 @@ impl Renderer {
         let mut rng = thread_rng();
         let dist = rand::distributions::Uniform::new_inclusive(-0.5, 0.5);
 
+        let mut image_data = imgbuf.enumerate_pixels_mut().collect::<Vec<_>>();
+        image_data.shuffle(&mut rng);
+
         let prog_bar = ProgressBar::new(num_pixels)
             .with_style(
                 ProgressStyle::default_bar()
@@ -61,7 +65,7 @@ impl Renderer {
                     .progress_chars("█▓▒░")
             )
             .with_message("Rendering image...");
-        for (x, y, pixel) in imgbuf.enumerate_pixels_mut().progress_with(prog_bar) {
+        for (x, y, pixel) in image_data.into_iter().progress_with(prog_bar) {
             let x = x as f64;
             let y = (self.image_heigth - y) as f64;
             let image_width = (self.image_width - 1) as f64;
