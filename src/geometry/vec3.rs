@@ -98,6 +98,10 @@ impl Vec3 {
         let cutoff = 1e-8;
         self.x < cutoff && self.y < cutoff && self.z < cutoff
     }
+
+    pub fn reflect(self, normal: Self) -> Self {
+        self - 2.0 * self.dot(normal) * normal
+    }
 }
 
 impl Add for Vec3 {
@@ -386,5 +390,14 @@ mod test {
         let eps = f64::EPSILON;
         assert!(Vec3::new(eps, eps, eps).near_zero());
         assert!(!Vec3::new(1.0, eps, eps).near_zero());
+    }
+
+    #[test]
+    fn canompute_vec3_reflection() {
+        let v = -Vec3::ones();
+        let n = Vec3::k();
+        let expected = Vec3::new(-1., -1., 1.);
+
+        assert_eq!(v.reflect(n), expected);
     }
 }
