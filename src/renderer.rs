@@ -1,7 +1,7 @@
 mod camera;
 
 use self::camera::Camera;
-use crate::geometry::{Color, HitableList, Hittable, Ray, Sphere, Vec3};
+use crate::geometry::{Color, HitableList, Hittable, Lambertian, Ray, Sphere, Vec3};
 use indicatif::{ProgressBar, ProgressIterator, ProgressStyle};
 use rand::prelude::*;
 use rand::seq::SliceRandom;
@@ -38,9 +38,15 @@ impl Renderer {
     pub fn render(self) -> ImageBuffer {
         // World
         let world = {
+            let green = Lambertian::new(0.5 * Color::j() + 0.01 * Color::ones());
+            let red = Lambertian::new(0.5 * Color::i() + 0.01 * Color::ones());
             let mut world = HitableList::new();
-            world.add(Box::new(Sphere::new(-Vec3::k(), 0.5)));
-            world.add(Box::new(Sphere::new(Vec3::new(0.0, -100.5, -1.), 100.0)));
+            world.add(Box::new(Sphere::new(-Vec3::k(), 0.5, green)));
+            world.add(Box::new(Sphere::new(
+                Vec3::new(0.0, -100.5, -1.),
+                100.0,
+                red,
+            )));
             world
         };
 
@@ -108,11 +114,12 @@ fn ray_color(ray: Ray, world: &HitableList, rng: &mut ThreadRng, depth: usize) -
         return Color::zeros();
     }
     if let Some(hit_record) = world.hit(&ray, 0.001..f64::INFINITY) {
-        let target = hit_record.point
-            + hit_record.normal
-            + hit_record.normal.random_unit_vector_in_direction(rng);
-        let new_ray = Ray::new(hit_record.point, target - hit_record.point);
-        0.5 * ray_color(new_ray, &world, rng, depth - 1)
+        hit_record
+            .material
+            .scatter(&ray, &hit_record, rng)
+            .map_or(Color::zeros(), |(attenuation, scattered)| {
+                attenuation * ray_color(scattered, &world, rng, depth - 1)
+            })
     } else {
         let unit_direction = ray.direction.unit_vector();
         let t = 0.5 * (unit_direction.y + 1.);

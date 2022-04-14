@@ -93,6 +93,11 @@ impl Vec3 {
             -v
         }
     }
+
+    pub fn near_zero(&self) -> bool {
+        let cutoff = 1e-8;
+        self.x < cutoff && self.y < cutoff && self.z < cutoff
+    }
 }
 
 impl Add for Vec3 {
@@ -374,5 +379,12 @@ mod test {
         let expected = Vec3::new(1. / 3., 2. / 3., 2. / 3.);
 
         assert_eq!(expected, v3.unit_vector())
+    }
+
+    #[test]
+    fn can_check_near_zero() {
+        let eps = f64::EPSILON;
+        assert!(Vec3::new(eps, eps, eps).near_zero());
+        assert!(!Vec3::new(1.0, eps, eps).near_zero());
     }
 }

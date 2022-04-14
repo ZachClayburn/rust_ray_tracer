@@ -1,9 +1,12 @@
+mod lambertian;
 mod ray;
 mod sphere;
 mod vec3;
 
-use std::ops::Range;
+use std::{ops::Range, rc::Rc};
 
+pub use lambertian::Lambertian;
+use rand::rngs::ThreadRng;
 pub use ray::Ray;
 pub use sphere::Sphere;
 pub use vec3::{Color, Point3, Vec3};
@@ -13,10 +16,17 @@ pub struct HitRecord {
     pub normal: Vec3,
     pub t: f64,
     pub front_face: bool,
+    pub material: Rc<dyn Material>,
 }
 
 impl HitRecord {
-    pub fn new(point: Point3, t: f64, ray: &Ray, outward_normal: Vec3) -> Self {
+    pub fn new(
+        point: Point3,
+        t: f64,
+        ray: &Ray,
+        outward_normal: Vec3,
+        material: Rc<dyn Material>,
+    ) -> Self {
         let front_face = ray.direction.dot(outward_normal) < 0.;
         let normal = if front_face {
             outward_normal
@@ -28,6 +38,7 @@ impl HitRecord {
             normal,
             t,
             front_face,
+            material,
         }
     }
 }
@@ -62,4 +73,13 @@ impl Hittable for HitableList {
                     .unwrap_or(std::cmp::Ordering::Equal)
             })
     }
+}
+
+pub trait Material {
+    fn scatter(
+        &self,
+        ray: &Ray,
+        hit_record: &HitRecord,
+        rng: &mut ThreadRng,
+    ) -> Option<(Color, Ray)>;
 }

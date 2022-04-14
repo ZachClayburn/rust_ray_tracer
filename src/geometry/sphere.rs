@@ -1,14 +1,21 @@
-use super::{HitRecord, Hittable, Point3};
+use std::rc::Rc;
 
-#[derive(Debug, Clone, Copy)]
+use super::{HitRecord, Hittable, Material, Point3};
+
+#[derive(Clone)]
 pub struct Sphere {
     center: Point3,
     radius: f64,
+    material: Rc<dyn Material>,
 }
 
 impl Sphere {
-    pub fn new(center: Point3, radius: f64) -> Self {
-        Sphere { center, radius }
+    pub fn new(center: Point3, radius: f64, material: Rc<dyn Material>) -> Self {
+        Sphere {
+            center,
+            radius,
+            material,
+        }
     }
 }
 
@@ -34,6 +41,12 @@ impl Hittable for Sphere {
         let point = ray.at(t);
         let outward_normal = (point - self.center) / self.radius;
 
-        Some(HitRecord::new(point, t, ray, outward_normal))
+        Some(HitRecord::new(
+            point,
+            t,
+            ray,
+            outward_normal,
+            self.material.clone(),
+        ))
     }
 }
