@@ -9,6 +9,7 @@ edition = "2021"
 image = "0.24.1"
 indicatif = "0.16.2"
 rand = "0.8.5"
+rand_distr = "0.4.3"
 
 [dev_dependencies]
 pretty_assertions = "1.2.1"

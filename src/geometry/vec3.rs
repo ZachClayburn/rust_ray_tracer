@@ -1,4 +1,6 @@
 use ::std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
+use rand::rngs::ThreadRng;
+use rand_distr::{Distribution, UnitBall, UnitSphere};
 
 #[derive(Debug, Default, PartialEq, Clone, Copy)]
 pub struct Vec3 {
@@ -58,6 +60,38 @@ impl Vec3 {
 
     pub fn unit_vector(self) -> Self {
         self / self.length()
+    }
+
+    pub fn random_in_unit_sphere(rng: &mut ThreadRng) -> Self {
+        let v = UnitBall.sample(rng);
+        Self {
+            x: v[0],
+            y: v[1],
+            z: v[2],
+        }
+    }
+
+    pub fn random_unit_vector(rng: &mut ThreadRng) -> Self {
+        let v = UnitSphere.sample(rng);
+        Self {
+            x: v[0],
+            y: v[1],
+            z: v[2],
+        }
+    }
+
+    pub fn random_unit_vector_in_direction(self, rng: &mut ThreadRng) -> Self {
+        let v = UnitSphere.sample(rng);
+        let v = Self {
+            x: v[0],
+            y: v[1],
+            z: v[2],
+        };
+        if v.dot(self) > 0. {
+            v
+        } else {
+            -v
+        }
     }
 }
 

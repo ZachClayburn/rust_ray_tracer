@@ -11,6 +11,7 @@ pub struct Renderer {
     image_width: u32,
     image_heigth: u32,
     samples_per_pixle: usize,
+    max_depth: usize,
 }
 
 impl Renderer {
@@ -19,6 +20,7 @@ impl Renderer {
             image_width: 256,
             image_heigth: 256,
             samples_per_pixle: 100,
+            max_depth: 50,
         }
     }
 
@@ -70,7 +72,7 @@ impl Renderer {
                 let v = (y + rng.sample(dist)) / image_heigth;
 
                 let ray = camera.get_ray(u, v);
-                ray_color(ray, &world)
+                ray_color(ray, &world, &mut rng, self.max_depth)
             })
             .take(self.samples_per_pixle)
             .fold(Color::zeros(), |acc, val| acc + val)
@@ -84,18 +86,29 @@ impl Renderer {
 
 impl Into<image::Rgb<u8>> for Vec3 {
     fn into(self) -> image::Rgb<u8> {
-        let conversion_nubmer = u8::MAX as f64 + 1.0 - f64::EPSILON;
-        let red = (self.x * conversion_nubmer) as u8;
-        let green = (self.y * conversion_nubmer) as u8;
-        let blue = (self.z * conversion_nubmer) as u8;
+        let red = self.x.clamp(0.0, 0.999).sqrt();
+        let green = self.y.clamp(0.0, 0.999).sqrt();
+        let blue = self.z.clamp(0.0, 0.999).sqrt();
+
+        let conversion_nubmer = u8::MAX as f64 + 1.0;
+        let red = (red * conversion_nubmer) as u8;
+        let green = (green * conversion_nubmer) as u8;
+        let blue = (blue * conversion_nubmer) as u8;
 
         image::Rgb([red, green, blue])
     }
 }
 
-fn ray_color(ray: Ray, world: &HitableList) -> Color {
-    if let Some(hit_record) = world.hit(&ray, 0.0..f64::INFINITY) {
-        0.5 * (hit_record.normal + Color::ones())
+fn ray_color(ray: Ray, world: &HitableList, rng: &mut ThreadRng, depth: usize) -> Color {
+    if depth <= 0 {
+        return Color::zeros();
+    }
+    if let Some(hit_record) = world.hit(&ray, 0.001..f64::INFINITY) {
+        let target = hit_record.point
+            + hit_record.normal
+            + hit_record.normal.random_unit_vector_in_direction(rng);
+        let new_ray = Ray::new(hit_record.point, target - hit_record.point);
+        0.5 * ray_color(new_ray, &world, rng, depth - 1)
     } else {
         let unit_direction = ray.direction.unit_vector();
         let t = 0.5 * (unit_direction.y + 1.);
