@@ -1,9 +1,6 @@
 use indicatif::{ProgressBar, ProgressIterator};
 
-use crate::geometry::{
-    ray::Ray,
-    vec3::{Color, Point3, Vec3},
-};
+use crate::geometry::{Color, HitableList, Hittable, Point3, Ray, Sphere, Vec3};
 
 pub type ImageBuffer = image::ImageBuffer<image::Rgb<u8>, Vec<u8>>;
 
@@ -31,11 +28,21 @@ impl Renderer {
     }
 
     pub fn render(self) -> ImageBuffer {
+        // Image
         let aspect_ratio = self.image_width as f64 / self.image_heigth as f64;
         let viewport_heigth = 2.;
         let viewport_width = viewport_heigth * aspect_ratio;
         let focal_length = 1.;
 
+        // World
+        let world = {
+            let mut world = HitableList::new();
+            world.add(Box::new(Sphere::new(-Vec3::k(), 0.5)));
+            world.add(Box::new(Sphere::new(Vec3::new(0.0, -100.5, -1.), 100.0)));
+            world
+        };
+
+        // Camera
         let origin = Vec3::zeros();
         let horizontal = viewport_width * Vec3::i();
         let vertical = viewport_heigth * Vec3::j();
@@ -57,7 +64,7 @@ impl Renderer {
                 (lower_left_corner + u * horizontal + v * vertical - origin).unit_vector(),
             );
 
-            *pixel = ray_color(ray);
+            *pixel = ray_color(ray, &world);
         }
 
         imgbuf
@@ -75,28 +82,13 @@ impl Into<image::Rgb<u8>> for Vec3 {
     }
 }
 
-fn ray_color(ray: Ray) -> image::Rgb<u8> {
-    let t = hit_sphere(-Point3::k(), 0.5, &ray);
-    if t > 0. {
-        let n = (ray.at(t) + Vec3::k()).unit_vector();
-        let color = 0.5 * (n + Color::ones());
-        return color.into();
-    }
-    let unit_direction = ray.direction.unit_vector();
-    let t = 0.5 * (unit_direction.y + 1.);
-    let color = (1. - t) * Color::ones() + t * Color::new(0.5, 0.7, 1.0);
-    color.into()
-}
-
-fn hit_sphere(center: Point3, radius: f64, ray: &Ray) -> f64 {
-    let origin_to_center = ray.origin - center;
-    let a = ray.direction.length_squared();
-    let b = origin_to_center.dot(ray.direction);
-    let c = origin_to_center.length_squared() - radius * radius;
-    let discriminant = b * b - a * c;
-    if discriminant < 0. {
-        -1.0
+fn ray_color(ray: Ray, world: &HitableList) -> image::Rgb<u8> {
+    let color = if let Some(hit_record) = world.hit(&ray, 0.0..f64::INFINITY) {
+        0.5 * (hit_record.normal + Color::ones())
     } else {
-        (-b - discriminant.sqrt()) / a
-    }
+        let unit_direction = ray.direction.unit_vector();
+        let t = 0.5 * (unit_direction.y + 1.);
+        (1. - t) * Color::ones() + t * Color::new(0.5, 0.7, 1.0)
+    };
+    color.into()
 }
