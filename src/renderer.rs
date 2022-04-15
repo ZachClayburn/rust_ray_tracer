@@ -40,8 +40,8 @@ impl Renderer {
         let world = {
             let ground_material = Lambertian::new(Color::new(0.8, 0.8, 0.0));
             let center_material = Lambertian::new(Color::new(0.7, 0.3, 0.3));
-            let left_material = Metal::new(Color::new(0.8, 0.8, 0.8));
-            let right_material = Metal::new(Color::new(0.8, 0.6, 0.2));
+            let left_material = Metal::new(Color::new(0.8, 0.8, 0.8), Some(1.0));
+            let right_material = Metal::new(Color::new(0.8, 0.6, 0.2), None);
             let mut world = HitableList::new();
             world.add(Sphere::new(
                 (0.0, -100.5, -1.).into(),
