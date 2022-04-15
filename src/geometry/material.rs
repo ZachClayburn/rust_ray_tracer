@@ -2,6 +2,7 @@ use super::{Color, HitRecord, Ray};
 use rand::rngs::ThreadRng;
 
 pub mod lambertian;
+pub mod metal;
 
 pub trait Material {
     fn scatter(

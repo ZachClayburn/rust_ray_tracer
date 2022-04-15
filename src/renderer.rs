@@ -1,7 +1,7 @@
 mod camera;
 
 use self::camera::Camera;
-use crate::geometry::{Color, HitableList, Hittable, Lambertian, Ray, Sphere, Vec3};
+use crate::geometry::{Color, HitableList, Hittable, Lambertian, Metal, Ray, Sphere, Vec3};
 use indicatif::{ProgressBar, ProgressIterator, ProgressStyle};
 use rand::prelude::*;
 use rand::seq::SliceRandom;
@@ -38,14 +38,30 @@ impl Renderer {
     pub fn render(self) -> ImageBuffer {
         // World
         let world = {
-            let green = Lambertian::new(0.5 * Color::j() + 0.01 * Color::ones());
-            let red = Lambertian::new(0.5 * Color::i() + 0.01 * Color::ones());
+            let ground_material = Lambertian::new(Color::new(0.8, 0.8, 0.0));
+            let center_material = Lambertian::new(Color::new(0.7, 0.3, 0.3));
+            let left_material = Metal::new(Color::new(0.8, 0.8, 0.8));
+            let right_material = Metal::new(Color::new(0.8, 0.6, 0.2));
             let mut world = HitableList::new();
-            world.add(Box::new(Sphere::new(-Vec3::k(), 0.5, green)));
             world.add(Box::new(Sphere::new(
                 Vec3::new(0.0, -100.5, -1.),
                 100.0,
-                red,
+                ground_material,
+            )));
+            world.add(Box::new(Sphere::new(
+                Vec3::new(0.0, 0.0, -1.0),
+                0.5,
+                center_material,
+            )));
+            world.add(Box::new(Sphere::new(
+                Vec3::new(-1., 0.0, -1.0),
+                0.5,
+                left_material,
+            )));
+            world.add(Box::new(Sphere::new(
+                Vec3::new(1.0, 0.0, -1.0),
+                0.5,
+                right_material,
             )));
             world
         };

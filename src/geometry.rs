@@ -11,4 +11,5 @@ pub use hittable::{HitRecord, Hittable};
 
 mod material;
 pub use material::lambertian::Lambertian;
+pub use material::metal::Metal;
 pub use material::Material;
