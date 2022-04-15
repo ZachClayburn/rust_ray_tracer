@@ -215,6 +215,16 @@ impl Neg for Vec3 {
     }
 }
 
+impl From<(f64, f64, f64)> for Vec3 {
+    fn from(tuple: (f64, f64, f64)) -> Self {
+        Self {
+            x: tuple.0,
+            y: tuple.1,
+            z: tuple.2,
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -399,5 +409,12 @@ mod test {
         let expected = Vec3::new(-1., -1., 1.);
 
         assert_eq!(v.reflect(n), expected);
+    }
+
+    #[test]
+    fn can_construct_vec3_from_tuple() {
+        let from_tuple: Vec3 = (1., 2., 3.).into();
+        let expected = Vec3::new(1., 2., 3.);
+        assert_eq!(from_tuple, expected);
     }
 }

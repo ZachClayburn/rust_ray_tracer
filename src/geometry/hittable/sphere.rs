@@ -1,3 +1,4 @@
+use std::boxed::Box;
 use std::rc::Rc;
 
 use super::{HitRecord, Hittable, Material, Point3};
@@ -10,12 +11,12 @@ pub struct Sphere {
 }
 
 impl Sphere {
-    pub fn new(center: Point3, radius: f64, material: Rc<dyn Material>) -> Self {
-        Sphere {
+    pub fn new(center: Point3, radius: f64, material: Rc<dyn Material>) -> Box<dyn Hittable> {
+        Box::new(Sphere {
             center,
             radius,
             material,
-        }
+        })
     }
 }
 

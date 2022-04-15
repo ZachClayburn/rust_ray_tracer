@@ -20,7 +20,7 @@ impl Renderer {
         Self {
             image_width: 256,
             image_heigth: 256,
-            samples_per_pixle: 100,
+            samples_per_pixle: 600,
             max_depth: 50,
         }
     }
@@ -43,26 +43,14 @@ impl Renderer {
             let left_material = Metal::new(Color::new(0.8, 0.8, 0.8));
             let right_material = Metal::new(Color::new(0.8, 0.6, 0.2));
             let mut world = HitableList::new();
-            world.add(Box::new(Sphere::new(
-                Vec3::new(0.0, -100.5, -1.),
+            world.add(Sphere::new(
+                (0.0, -100.5, -1.).into(),
                 100.0,
                 ground_material,
-            )));
-            world.add(Box::new(Sphere::new(
-                Vec3::new(0.0, 0.0, -1.0),
-                0.5,
-                center_material,
-            )));
-            world.add(Box::new(Sphere::new(
-                Vec3::new(-1., 0.0, -1.0),
-                0.5,
-                left_material,
-            )));
-            world.add(Box::new(Sphere::new(
-                Vec3::new(1.0, 0.0, -1.0),
-                0.5,
-                right_material,
-            )));
+            ));
+            world.add(Sphere::new((0.0, 0.0, -1.0).into(), 0.5, center_material));
+            world.add(Sphere::new((-1., 0.0, -1.0).into(), 0.5, left_material));
+            world.add(Sphere::new((1.0, 0.0, -1.0).into(), 0.5, right_material));
             world
         };
 
