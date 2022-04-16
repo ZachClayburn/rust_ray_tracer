@@ -10,7 +10,7 @@ pub type ImageBuffer = image::ImageBuffer<image::Rgb<u8>, Vec<u8>>;
 
 pub struct Renderer {
     image_width: u32,
-    image_heigth: u32,
+    image_height: u32,
     samples_per_pixle: usize,
     max_depth: usize,
 }
@@ -19,7 +19,7 @@ impl Renderer {
     pub fn new() -> Self {
         Self {
             image_width: 256,
-            image_heigth: 256,
+            image_height: 256,
             samples_per_pixle: 600,
             max_depth: 50,
         }
@@ -30,8 +30,18 @@ impl Renderer {
         self
     }
 
-    pub fn image_heigth(mut self, image_heigth: u32) -> Self {
-        self.image_heigth = image_heigth;
+    pub fn image_height(mut self, image_heigth: u32) -> Self {
+        self.image_height = image_heigth;
+        self
+    }
+
+    pub fn samples_per_pixle(mut self, samples_per_pixle: usize) -> Self {
+        self.samples_per_pixle = samples_per_pixle;
+        self
+    }
+
+    pub fn max_depth(mut self, max_depth: usize) -> Self {
+        self.max_depth = max_depth;
         self
     }
 
@@ -55,11 +65,11 @@ impl Renderer {
         };
 
         // Camera
-        let camera = Camera::new(self.image_width, self.image_heigth);
+        let camera = Camera::new(self.image_width, self.image_height);
 
-        let mut imgbuf = ImageBuffer::new(self.image_width, self.image_heigth);
+        let mut imgbuf = ImageBuffer::new(self.image_width, self.image_height);
 
-        let num_pixels = self.image_width as u64 * self.image_heigth as u64;
+        let num_pixels = self.image_width as u64 * self.image_height as u64;
 
         let mut rng = thread_rng();
         let dist = rand::distributions::Uniform::new_inclusive(-0.5, 0.5);
@@ -77,13 +87,13 @@ impl Renderer {
             .with_message("Rendering image...");
         for (x, y, pixel) in image_data.into_iter().progress_with(prog_bar) {
             let x = x as f64;
-            let y = (self.image_heigth - y) as f64;
+            let y = (self.image_height - y) as f64;
             let image_width = (self.image_width - 1) as f64;
-            let image_heigth = (self.image_heigth - 1) as f64;
+            let image_height = (self.image_height - 1) as f64;
 
             *pixel = (std::iter::repeat_with(|| {
                 let u = (x + rng.sample(dist)) / image_width;
-                let v = (y + rng.sample(dist)) / image_heigth;
+                let v = (y + rng.sample(dist)) / image_height;
 
                 let ray = camera.get_ray(u, v);
                 ray_color(ray, &world, &mut rng, self.max_depth)
