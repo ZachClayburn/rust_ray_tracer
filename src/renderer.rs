@@ -78,9 +78,9 @@ impl Renderer {
         let prog_bar = ProgressBar::new(num_pixels)
             .with_style(
                 ProgressStyle::default_bar()
-                    .template("[{elapsed_precise}/{duration_precise}] {bar:40.cyan/blue} {pos:>7}/{len:7} {msg}")
+                    .template("[{elapsed}/{duration}] {bar:40.cyan/blue} {pos:>7}/{len:7} {msg}")
                     .on_finish(indicatif::ProgressFinish::WithMessage("Done!".into()))
-                    .progress_chars("█▓▒░")
+                    .progress_chars("█▓▒░"),
             )
             .with_message("Rendering image...");
         for (x, y, pixel) in image_data.into_iter().progress_with(prog_bar) {
