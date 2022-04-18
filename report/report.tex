@@ -1,17 +1,16 @@
-\documentclass{IEEEtran}
+\documentclass[10pt]{IEEEtran}
 
 \usepackage{blindtext}
-% \usepackage[
-%     left=0.75in,
-%     right=0.75in,
-%     top=0.75in,
-% ]{geometry}
 \usepackage{titling}
 \usepackage[style=ieee]{biblatex}
 \usepackage{indentfirst}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{graphicx}
+\usepackage{cleveref}
 
 \bibliography{sources.bib}
 
@@ -48,8 +47,11 @@
 
 \begin{abstract}
 
-TODO % Write this once you have finished the rest of the paper
-
+Modern computer generated imagery is predominantly done using a family of algorithms called
+ray-tracing. These unlike traditional rasterization rendering, these algorithms simulate rays of
+light as they travel around a scene and are captured by a virtual camera. A basic backward
+ray-tracing renderer is implemented, its runtime complexity is discussed, and its output is
+demonstrated.
 
 \end{abstract}
 
@@ -74,7 +76,7 @@ can be conceptually simple to understand and implement, it is extremely computat
 
 This paper discusses the basics of ray-tracing, and goes over my implementation of a simple ray
 tracing renderer. I selected this topic because I have always been interested in computer graphics.
-From video games to animations, the topic has always been fascinating to me. In the past, I have
+From video games to animated films, the topic has always been fascinating to me. In the past, I have
 experimented with traditional raster based rendering libraries (OpenGL, Vulkan), and I have a fairly
 decent working knowledge of how those processes work. I have not, however, dealt with any
 ray-tracing based rendering, and wanted to learn more about how it works. I had heard of an
@@ -122,6 +124,7 @@ list of varieties of ray tracing \cite{stanfordRayTracingTypes}:
 
 \begin{algorithm}[b]
     \caption{Backward Ray Tracing Algorithm}\label{alg:render}
+    \scriptsize
     \begin{algorithmic}[1]
         \Procedure{Render}{$imageWidth, imageHeight,$\par
             \hskip\algorithmicindent $scene, samplesPerPixel, maxRecursion$}
@@ -151,29 +154,29 @@ list of varieties of ray tracing \cite{stanfordRayTracingTypes}:
     \end{algorithmic}
 \end{algorithm}
 
-For my implementation, I went with a backward ray tracing algorithm. As can be seen in algorithm
-\ref{alg:render}, the actual render loop is not overly complicated. The image is iterated over pixel
-by pixel, and a set number of samples are taken for each pixel. To take a sample, a random number is
-added to the x and y components, which are then normalized by the image dimensions. The reason
-multiple samples are taken for each pixel is to provide anti-aliasing, so that the pixels on the
-edge of a shape will not abruptly transition from one color to another, but blend smoothly between
-to two colors. Additionally, because some of the ray computations are stochastic in nature, these
-multiple samples help to reduce noise by decreasing the visual weight of outliers of those
+For my implementation, I went with a backward ray tracing algorithm. As can be seen in
+\cref{alg:render}, the actual render loop is not overly complicated. The image is iterated over
+pixel by pixel, and a set number of samples are taken for each pixel. To take a sample, a random
+number is added to the x and y components, which are then normalized by the image dimensions. The
+reason multiple samples are taken for each pixel is to provide anti-aliasing, so that the pixels on
+the edge of a shape will not abruptly transition from one color to another, but blend smoothly
+between to two colors. Additionally, because some of the ray computations are stochastic in nature,
+these multiple samples help to reduce noise by decreasing the visual weight of outliers of those
 stochastic processes.
 
 The process for computing the actual color, what takes place in the \textsc{GetColor} function in
-algorithm \ref{alg:getcolor}, is where the similarity to rasterization ends. The ray is checked
-against all the objects in the scene, to see if it impacted any of them. If no objects are struck,
-then it is assumed that the ray that came from that direction is from the global light source (e.g.
-the sun), and so it is colored according to whatever global illumination is set up for the scene. If
-an object or objects are impacted then the nearest object is found. Then the material is used to
-"scatter" the ray. What the process of scattering is depends on the material. Then, the function is
-recursively called with that scattered ray to determine where that ray would have come from and what
-color it would be. Because this is a recursive function, there is the possibility of a ray getting
-trapped and taking an indeterminately long time to reach a light source. To prevent wasting time on
-a ray that has no chance of contributing significantly to the image, or even to get stuck in an
-infinite recursion, the depth parameter is used to limit how deep the recursion will go, and just
-returns black if that limit is reached.
+\cref{alg:getcolor}, is where the similarity to rasterization ends. The ray is checked against all
+the objects in the scene, to see if it impacted any of them. If no objects are struck, then it is
+assumed that the ray that came from that direction is from the global light source (e.g. the sun),
+and so it is colored according to whatever global illumination is set up for the scene. If an object
+or objects are impacted then the nearest object is found. Then the material is used to "scatter" the
+ray. What the process of scattering is depends on the material. Then, the function is recursively
+called with that scattered ray to determine where that ray would have come from and what color it
+would be. Because this is a recursive function, there is the possibility of a ray getting trapped
+and taking an indeterminately long time to reach a light source. To prevent wasting time on a ray
+that has no chance of contributing significantly to the image, or even to get stuck in an infinite
+recursion, the depth parameter is used to limit how deep the recursion will go, and just returns
+black if that limit is reached.
 
 As for materials, my implementation has two kinds: lambertian and metal. Lamberitan materials have a
 diffuse surface, meaning they scatter the light in a random direction from the point of impact while
@@ -185,6 +188,7 @@ to a lambertian material. This property varies from 0 (completely smooth), to 1 
 
 \begin{algorithm}[b]
     \caption{Procedure for Computing ray color}\label{alg:getcolor}
+    \scriptsize
     \begin{algorithmic}
         \Procedure{getColor}{$ray, scene, depth$}
         \If{$depth = 0$}
@@ -224,7 +228,110 @@ resulting in an overall time complex of $O(WHSD)$.
 
 \section*{Results}
 
+There are several interesting parameters that can be modified to get varying results out of the
+renderer. This section will describe these changes, and include figures to demonstrate different
+values. Some parameters, like image size, have n impact on the runtime, but their behavior is not
+noteworthy enough to warrant discussion here.
+
+The first significant parameter is the number of samples taken for each pixel rendered. As mentioned
+previously, the ray-tracing process is a stochastic method, and the results vary between each
+calculation. Because this variation, pixels that are adjacent to each other can be vastly different
+colors, resulting in noisy images. As can be seen in \cref{fig:samples}, by taking more samples and
+averaging the results, image noise is greatly reduced.
+
+\begin{figure}
+    \caption{The effect of sample count on image quality. Each image is rendered with $n$ samples
+    per pixel.}
+    \label{fig:samples}
+    \centering
+    \begin{subfigure}[b]{0.2\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/sampleCount/1.png}
+        \caption{$n=1$}
+        \label{fig:samples n equals 1}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.2\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/sampleCount/10.png}
+        \caption{$n=10$}
+        \label{fig:samples n equals 10}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.2\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/sampleCount/100.png}
+        \caption{$n=100$}
+        \label{fig:samples n equals 100}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.2\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/sampleCount/1000.png}
+        \caption{$n=1000$}
+        \label{fig:samples n equals 1000}
+    \end{subfigure}
+\end{figure}
+
+The next parameter of interest is the maximum depth of recursion. As \cref{fig:recursion}
+demonstrates, if a maximum depth of one is used, only light emitting objects are drawn, as no
+reflections are computed. As the recursion depth increases, then the number of reflections also
+increases. While the appearance of deeper reflections in metallic surfaces is the obvious outcome,
+an additional outcome is more accurate shadows. As can be seen in \cref{fig:recursion d equals 60},
+the shadows underneath the  two spheres become much lighter, and the ground under the yellow sphere
+has the expected yellow tint to it.
+
+\begin{figure}
+    \caption{ The effect of recursion depth on image quality. This is an image of two metallic
+        spheres, immediately in front and behind the camera, rendered with $d$ max recursion depth.
+        Note that, because the camera has no ray collision logic, it remains invisible.}
+    \label{fig:recursion}
+    \centering
+    \begin{subfigure}[b]{0.2\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/recursiveDepth/1.png}
+        \caption{$d=1$}
+        \label{fig:recursion d equals 1}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.2\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/recursiveDepth/2.png}
+        \caption{$d=2$}
+        \label{fig:recursion d equals 2}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.2\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/recursiveDepth/3.png}
+        \caption{$d=3$}
+        \label{fig:recursion d equals 3}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.2\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/recursiveDepth/60.png}
+        \caption{$d=60$}
+        \label{fig:recursion d equals 60}
+    \end{subfigure}
+\end{figure}
+
+The last parameter to discuss is the roughness parameter of a metallic material. The image in
+\cref{fig:roughness} shows the transition from completely smooth to completely rough. It can also be
+seen that a fully rough metal material is still behaves differently than a lambertian type material.
+This difference is caused by rough metals' still maintaining directionality, while the lambertian
+materials scattering is completely random.
+
+\begin{figure}
+
+    \caption{ Four metallic spheres with roughness values (from left to right) of 0, $1/3$, $2/3$,
+        and 1, as well as a lambertial sphere for comparison.}
+
+    \label{fig:roughness}
+    \includegraphics[width=\columnwidth]{images/roughness.png}
+\end{figure}
+
 \section*{Conclusion}
+
+Ray-tracing based rendering algorithms while extremely computationally expensive, produce strikingly
+realistic imagery. By using stochastic methods to simulate light as it behaves in real photography,
+details that would take meticulous care and on the part of an artist to replicate are generated for
+automatically by the algorithm. This detail comes with the cost of incredibly long run times, but
+the results have justified those costs for every field where it is feasible to use.
 
 \printbibliography
 
