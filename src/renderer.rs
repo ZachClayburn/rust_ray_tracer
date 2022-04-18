@@ -45,27 +45,25 @@ impl Renderer {
         self
     }
 
-    pub fn render(self) -> ImageBuffer {
-        // World
-        let world = {
-            let ground_material = Lambertian::new(Color::new(0.8, 0.8, 0.0));
-            let center_material = Lambertian::new(Color::new(0.7, 0.3, 0.3));
-            let left_material = Metal::new(Color::new(0.8, 0.8, 0.8), Some(1.0));
-            let right_material = Metal::new(Color::new(0.8, 0.6, 0.2), None);
-            let mut world = HitableList::new();
-            world.add(Sphere::new(
-                (0.0, -100.5, -1.).into(),
-                100.0,
-                ground_material,
-            ));
-            world.add(Sphere::new((0.0, 0.0, -1.0).into(), 0.5, center_material));
-            world.add(Sphere::new((-1., 0.0, -1.0).into(), 0.5, left_material));
-            world.add(Sphere::new((1.0, 0.0, -1.0).into(), 0.5, right_material));
-            world
-        };
+    fn get_scene(&self) -> (HitableList, Camera) {
+        let ground_material = Lambertian::new(Color::new(0.8, 0.8, 0.0));
+        let center_material = Lambertian::new(Color::new(0.7, 0.3, 0.3));
+        let left_material = Metal::new(Color::new(0.8, 0.8, 0.8), Some(1.0));
+        let right_material = Metal::new(Color::new(0.8, 0.6, 0.2), None);
+        let mut world = HitableList::new();
+        world.add(Sphere::new(
+            (0.0, -100.5, -1.).into(),
+            100.0,
+            ground_material,
+        ));
+        world.add(Sphere::new((0.0, 0.0, -1.0).into(), 0.5, center_material));
+        world.add(Sphere::new((-1., 0.0, -1.0).into(), 0.5, left_material));
+        world.add(Sphere::new((1.0, 0.0, -1.0).into(), 0.5, right_material));
+        (world, Camera::new(self.image_width, self.image_height))
+    }
 
-        // Camera
-        let camera = Camera::new(self.image_width, self.image_height);
+    pub fn render(self) -> ImageBuffer {
+        let (world, camera) = self.get_scene();
 
         let mut imgbuf = ImageBuffer::new(self.image_width, self.image_height);
 
