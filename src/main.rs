@@ -44,6 +44,10 @@ fn valid_file(s: &str) -> Result<PathBuf, String> {
         Some(os_str) => match os_str.to_str() {
             Some(ext) if ext.to_lowercase() == "jpg" => Ok(file),
             Some(ext) if ext.to_lowercase() == "png" => Ok(file),
+            Some(ext) if ext.to_lowercase() == "ico" => Ok(file),
+            Some(ext) if ext.to_lowercase() == "pnm" => Ok(file),
+            Some(ext) if ext.to_lowercase() == "bmp" => Ok(file),
+            Some(ext) if ext.to_lowercase() == "tiff" => Ok(file),
             Some(ext) => Err(format!("The {} is not supported!", ext)),
             None => Err(format!("Could not convert {:?} to a string!?", os_str)),
         },
