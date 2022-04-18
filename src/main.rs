@@ -1,7 +1,7 @@
 mod geometry;
 mod renderer;
 
-use std::path::PathBuf;
+use std::{fs::File, path::PathBuf};
 
 use clap::{IntoApp, Parser};
 
@@ -61,6 +61,20 @@ fn main() {
                 "{:?} already exists! To force overwrite, use the --force flag",
                 cli.file_name
             ),
+        )
+        .exit();
+    }
+
+    if let Err(err) = File::options()
+        .create(true)
+        .truncate(true)
+        .write(true)
+        .open(&cli.file_name)
+    {
+        let mut cmd = Cli::command();
+        cmd.error(
+            clap::ErrorKind::ValueValidation,
+            format!("Cannot open {:?} for writing: {}", cli.file_name, err),
         )
         .exit();
     }
