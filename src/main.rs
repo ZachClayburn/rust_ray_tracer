@@ -71,7 +71,7 @@ fn main() {
 
     if let Err(err) = File::options()
         .create(true)
-        .truncate(true)
+        .append(true)
         .write(true)
         .open(&cli.file_name)
     {
