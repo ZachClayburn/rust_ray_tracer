@@ -3,6 +3,7 @@ use rand::rngs::ThreadRng;
 
 pub mod lambertian;
 pub mod metal;
+pub mod dialectric;
 
 pub trait Material {
     fn scatter(

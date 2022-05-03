@@ -1,7 +1,7 @@
 mod camera;
 
 use self::camera::Camera;
-use crate::geometry::{Color, HitableList, Hittable, Lambertian, Metal, Ray, Sphere, Vec3};
+use crate::geometry::{Color, HitableList, Hittable, Lambertian, Metal, Ray, Sphere, Vec3, Dialectric};
 use indicatif::{ProgressBar, ProgressIterator, ProgressStyle};
 use rand::prelude::*;
 use rand::seq::SliceRandom;
@@ -48,8 +48,9 @@ impl Renderer {
     fn get_scene(&self) -> (HitableList, Camera) {
         let ground_material = Lambertian::new(Color::new(0.8, 0.8, 0.0));
         let center_material = Lambertian::new(Color::new(0.7, 0.3, 0.3));
-        let left_material = Metal::new(Color::new(0.8, 0.8, 0.8), Some(1.0));
-        let right_material = Metal::new(Color::new(0.8, 0.6, 0.2), None);
+        // let left_material = Metal::new(Color::new(0.8, 0.8, 0.8), Some(1.0));
+        let left_material = Dialectric::new(1.5);
+        let right_material = Metal::new(Color::new(0.8, 0.6, 0.2), Some(1.0));
         let mut world = HitableList::new();
         world.add(Sphere::new(
             (0.0, -100.5, -1.).into(),
@@ -57,7 +58,8 @@ impl Renderer {
             ground_material,
         ));
         world.add(Sphere::new((0.0, 0.0, -1.0).into(), 0.5, center_material));
-        world.add(Sphere::new((-1., 0.0, -1.0).into(), 0.5, left_material));
+        world.add(Sphere::new((-1., 0.0, -1.0).into(), 0.5, left_material.clone()));
+        world.add(Sphere::new((-1., 0.0, -1.0).into(), -0.4, left_material));
         world.add(Sphere::new((1.0, 0.0, -1.0).into(), 0.5, right_material));
         (world, Camera::new(self.image_width, self.image_height))
     }
