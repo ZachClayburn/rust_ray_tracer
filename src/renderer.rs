@@ -1,7 +1,7 @@
 mod camera;
 
 use self::camera::Camera;
-use crate::geometry::{Color, HitableList, Hittable, Ray, Sphere, Vec3};
+use crate::geometry::{Color, HitableList, Hittable, Plane, Ray, Sphere, Vec3};
 use crate::material::{Dialectric, Lambertian, Metal};
 use indicatif::{ProgressBar, ProgressIterator, ProgressStyle};
 use rand::prelude::*;
@@ -53,11 +53,7 @@ impl Renderer {
         let left_material = Dialectric::new(1.5);
         let right_material = Metal::new(Color::new(0.8, 0.6, 0.2), Some(1.0));
         let mut world = HitableList::new();
-        world.add(Sphere::new(
-            (0.0, -100.5, -1.).into(),
-            100.0,
-            ground_material,
-        ));
+        world.add(Plane::new(-0.5 * Vec3::j(), Vec3::j(), ground_material));
         world.add(Sphere::new((0.0, 0.0, -1.0).into(), 0.5, center_material));
         world.add(Sphere::new(
             (-1., 0.0, -1.0).into(),

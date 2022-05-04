@@ -4,6 +4,7 @@ use std::ops::Range;
 use std::rc::Rc;
 
 pub mod hitable_list;
+pub mod plane;
 pub mod sphere;
 
 pub trait Hittable {
