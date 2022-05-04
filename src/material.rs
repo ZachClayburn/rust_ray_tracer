@@ -1,9 +1,12 @@
-use super::{Color, HitRecord, Ray};
+use crate::geometry::{Color, HitRecord, Ray};
 use rand::rngs::ThreadRng;
 
-pub mod lambertian;
-pub mod metal;
-pub mod dialectric;
+mod lambertian;
+pub use lambertian::Lambertian;
+mod metal;
+pub use metal::Metal;
+mod dialectric;
+pub use dialectric::Dialectric;
 
 pub trait Material {
     fn scatter(

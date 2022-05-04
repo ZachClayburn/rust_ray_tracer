@@ -1,4 +1,5 @@
-use super::{Material, Point3, Ray, Vec3};
+use super::{Point3, Ray, Vec3};
+use crate::material::Material;
 use std::ops::Range;
 use std::rc::Rc;
 

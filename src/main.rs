@@ -1,4 +1,5 @@
 mod geometry;
+mod material;
 mod renderer;
 
 use std::{fs::File, path::PathBuf};

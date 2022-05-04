@@ -1,7 +1,8 @@
 mod camera;
 
 use self::camera::Camera;
-use crate::geometry::{Color, HitableList, Hittable, Lambertian, Metal, Ray, Sphere, Vec3, Dialectric};
+use crate::geometry::{Color, HitableList, Hittable, Ray, Sphere, Vec3};
+use crate::material::{Dialectric, Lambertian, Metal};
 use indicatif::{ProgressBar, ProgressIterator, ProgressStyle};
 use rand::prelude::*;
 use rand::seq::SliceRandom;
@@ -58,7 +59,11 @@ impl Renderer {
             ground_material,
         ));
         world.add(Sphere::new((0.0, 0.0, -1.0).into(), 0.5, center_material));
-        world.add(Sphere::new((-1., 0.0, -1.0).into(), 0.5, left_material.clone()));
+        world.add(Sphere::new(
+            (-1., 0.0, -1.0).into(),
+            0.5,
+            left_material.clone(),
+        ));
         world.add(Sphere::new((-1., 0.0, -1.0).into(), -0.4, left_material));
         world.add(Sphere::new((1.0, 0.0, -1.0).into(), 0.5, right_material));
         (world, Camera::new(self.image_width, self.image_height))
