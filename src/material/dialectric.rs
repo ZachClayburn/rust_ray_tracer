@@ -2,16 +2,16 @@ use rand::Rng;
 
 use crate::geometry::Vec3;
 
-use super::{Color, HitRecord, Material, Ray};
-use std::rc::Rc;
+use super::{Color, HitRecord, Material, MaterialEnum, Ray};
 
+#[derive(serde::Deserialize, serde::Serialize, Clone)]
 pub struct Dialectric {
     index_of_refraction: f64,
 }
 
 impl Dialectric {
-    pub fn new(index_of_refraction: f64) -> Rc<dyn Material> {
-        Rc::new(Self {
+    pub fn new(index_of_refraction: f64) -> MaterialEnum {
+        MaterialEnum::Dialectric(Self {
             index_of_refraction,
         })
     }

@@ -1,18 +1,15 @@
-use std::boxed::Box;
-use std::rc::Rc;
+use super::{HitEnum, HitRecord, Hittable, MaterialEnum, Point3, Vec3};
 
-use super::{HitRecord, Hittable, Material, Point3, Vec3};
-
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct Plane {
     point: Point3,
     normal: Vec3,
-    material: Rc<dyn Material>,
+    material: MaterialEnum,
 }
 
 impl Plane {
-    pub fn new(point: Point3, normal: Vec3, material: Rc<dyn Material>) -> Box<dyn Hittable> {
-        Box::new(Self {
+    pub fn new(point: Point3, normal: Vec3, material: MaterialEnum) -> HitEnum {
+        HitEnum::Plane(Self {
             point,
             normal: normal.unit_vector(),
             material,

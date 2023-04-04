@@ -1,15 +1,15 @@
 use rand::prelude::ThreadRng;
 
-use super::{Color, HitRecord, Material, Ray};
-use std::rc::Rc;
+use super::{Color, HitRecord, Material, MaterialEnum, Ray};
 
+#[derive(serde::Deserialize, serde::Serialize, Clone)]
 pub struct Lambertian {
     albedo: Color,
 }
 
 impl Lambertian {
-    pub fn new(albedo: Color) -> Rc<dyn Material> {
-        Rc::new(Self { albedo })
+    pub fn new(albedo: Color) -> MaterialEnum {
+        MaterialEnum::Lambertian(Self { albedo })
     }
 }
 

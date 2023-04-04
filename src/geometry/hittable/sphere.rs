@@ -1,18 +1,17 @@
-use std::boxed::Box;
-use std::rc::Rc;
+use crate::material::MaterialEnum;
 
-use super::{HitRecord, Hittable, Material, Point3};
+use super::{HitEnum, HitRecord, Hittable, Point3};
 
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct Sphere {
     center: Point3,
     radius: f64,
-    material: Rc<dyn Material>,
+    material: MaterialEnum,
 }
 
 impl Sphere {
-    pub fn new(center: Point3, radius: f64, material: Rc<dyn Material>) -> Box<dyn Hittable> {
-        Box::new(Sphere {
+    pub fn new(center: Point3, radius: f64, material: MaterialEnum) -> HitEnum {
+        HitEnum::Sphere(Sphere {
             center,
             radius,
             material,
@@ -34,8 +33,8 @@ impl Hittable for Sphere {
         let squrt_d = discriminant.sqrt();
 
         let t = match squrt_d {
-            x if t_range.contains(&((-half_b - x) / a)) => ((-half_b - x) / a),
-            x if t_range.contains(&((-half_b + x) / a)) => ((-half_b + x) / a),
+            x if t_range.contains(&((-half_b - x) / a)) => (-half_b - x) / a,
+            x if t_range.contains(&((-half_b + x) / a)) => (-half_b + x) / a,
             _ => return None,
         };
 

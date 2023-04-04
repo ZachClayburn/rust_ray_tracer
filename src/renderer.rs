@@ -1,8 +1,8 @@
 mod camera;
 
 use self::camera::Camera;
-use crate::geometry::{Color, HitableList, Hittable, Plane, Ray, Sphere, Vec3};
-use crate::material::{Dialectric, Lambertian, Metal};
+use crate::geometry::{Color, HitableList, Hittable, Plane, Ray, SceneDescription, Sphere, Vec3};
+use crate::material::{Dialectric, Lambertian, Material, Metal};
 use indicatif::{ProgressBar, ProgressIterator, ProgressStyle};
 use rand::prelude::*;
 use rand::seq::SliceRandom;
@@ -62,7 +62,16 @@ impl Renderer {
         ));
         world.add(Sphere::new((-1., 0.0, -1.0).into(), -0.4, left_material));
         world.add(Sphere::new((1.0, 0.0, -1.0).into(), 0.5, right_material));
-        (world, Camera::new(self.image_width, self.image_height))
+        let desc = SceneDescription {
+            hittable: world,
+            camera_width: self.image_width,
+            camera_height: self.image_height,
+        };
+        println!("{}", serde_json::to_string_pretty(&desc).unwrap());
+        (
+            desc.hittable,
+            Camera::new(self.image_width, self.image_height),
+        )
     }
 
     pub fn render(self) -> ImageBuffer {

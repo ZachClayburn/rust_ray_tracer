@@ -1,17 +1,17 @@
-use super::Material;
+use super::{Material, MaterialEnum};
 use crate::geometry::{Color, HitRecord, Ray, Vec3};
 use rand::prelude::ThreadRng;
-use std::rc::Rc;
 
+#[derive(serde::Deserialize, serde::Serialize, Clone)]
 pub struct Metal {
     albedo: Color,
     roughness: Option<f64>,
 }
 
 impl Metal {
-    pub fn new(albedo: Color, roughness: Option<f64>) -> Rc<dyn Material> {
+    pub fn new(albedo: Color, roughness: Option<f64>) -> MaterialEnum {
         let roughness = roughness.map(|x| x.clamp(0.0, 1.0));
-        Rc::new(Self { albedo, roughness })
+        MaterialEnum::Metal(Self { albedo, roughness })
     }
 }
 

@@ -1,9 +1,12 @@
+use super::HitEnum;
 use super::Ray;
 use super::{HitRecord, Hittable};
+use serde::{Deserialize, Serialize};
 use std::ops::Range;
 
+#[derive(Serialize, Deserialize)]
 pub struct HitableList {
-    list: Vec<Box<dyn Hittable>>,
+    list: Vec<HitEnum>,
 }
 
 impl HitableList {
@@ -11,7 +14,7 @@ impl HitableList {
         Self { list: Vec::new() }
     }
 
-    pub fn add(&mut self, hittable: Box<dyn Hittable>) {
+    pub fn add(&mut self, hittable: HitEnum) {
         self.list.push(hittable);
     }
 }
